@@ -569,6 +569,12 @@ repmgr_initialize() {
     postgresql_enable_remote_connections
     # Configure port and restrict access to PostgreSQL (MD5)
     postgresql_set_property "port" "$POSTGRESQL_PORT_NUMBER"
+
+    # Configure the synchronous_standby_names in accordance with the desired number of synchronous replicas.
+    if (( POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS > 0 )); then
+        postgresql_set_property "synchronous_standby_names" "${POSTGRESQL_NUM_SYNCHRONOUS_REPLICAS} (*)"
+    fi
+
     is_boolean_yes "$REPMGR_PGHBA_TRUST_ALL" || postgresql_restrict_pghba
     if [[ "$REPMGR_ROLE" = "primary" ]]; then
         if is_boolean_yes "$POSTGRESQL_FIRST_BOOT"; then
